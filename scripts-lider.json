@@ -1,0 +1,7 @@
+[
+  {
+    "name": "Limpieza Profunda del Navegador",
+    "description": "Limpia localStorage, sessionStorage, IndexedDB y la caché, y luego realiza una recarga forzada. Útil para empezar desde un estado limpio.",
+    "code": "(async function limpiarNavegadorL10() { console.clear(); console.log('%c INICIANDO LIMPIEZA...', 'background: #222; color: #bada55'); localStorage.clear(); sessionStorage.clear(); const dbs = await window.indexedDB.databases(); dbs.forEach(db => window.indexedDB.deleteDatabase(db.name)); if ('caches' in window) { const keys = await caches.keys(); await Promise.all(keys.map(key => caches.delete(key))); } console.log('Limpieza completada. Recargando...'); setTimeout(() => window.location.reload(true), 1000); })()"
+  }
+]
