@@ -1,7 +1,76 @@
-[
-  {
-    "name": "Limpieza Profunda del Navegador",
-    "description": "Limpia localStorage, sessionStorage, IndexedDB y la caché, y luego realiza una recarga forzada. Útil para empezar desde un estado limpio.",
-    "code": "(async function limpiarNavegadorL10() { console.clear(); console.log('%c INICIANDO LIMPIEZA...', 'background: #222; color: #bada55'); localStorage.clear(); sessionStorage.clear(); const dbs = await window.indexedDB.databases(); dbs.forEach(db => window.indexedDB.deleteDatabase(db.name)); if ('caches' in window) { const keys = await caches.keys(); await Promise.all(keys.map(key => caches.delete(key))); } console.log('Limpieza completada. Recargando...'); setTimeout(() => window.location.reload(true), 1000); })()"
-  }
-]
+{
+  "version": "1.0.0",
+  "totalScripts": 10,
+  "scripts": [
+    {
+      "name": "Forzar detección de cambios Angular",
+      "icon": "sync",
+      "tag": "angular",
+      "description": "Fuerza un ciclo completo de detección de cambios en la aplicación Angular.",
+      "code": "(function() { try { const ng = window.ng; if (!ng) { console.error('❌ Angular no detectado'); return; } const appRef = ng.getComponent(document.body)?.appRef || ng.getApplicationRef?.(); if (appRef && appRef.tick) { appRef.tick(); console.log('✅ Change detection forzado'); } else { console.error('❌ No se pudo acceder a ApplicationRef'); } } catch (error) { console.error('Error:', error); } })();"
+    },
+    {
+      "name": "Debug de formularios Angular",
+      "icon": "form",
+      "tag": "angular",
+      "description": "Muestra el estado de todos los formularios en la página y sus controles.",
+      "code": "(function() { try { const forms = document.querySelectorAll('form'); console.log(`📝 Formularios encontrados: ${forms.length}`); forms.forEach((form, index) => { const ngForm = window.ng?.getComponent(form); if (ngForm) { console.log(`Formulario ${index + 1}:`, { valid: ngForm.valid, touched: ngForm.touched, dirty: ngForm.dirty, value: ngForm.value }); } else { console.log(`Formulario ${index + 1}: No es un formulario Angular`); } const inputs = form.querySelectorAll('input, select, textarea'); inputs.forEach(input => { const ngModel = window.ng?.getComponent(input); if (ngModel) { console.log(`   - ${input.name || 'sin name'}:`, { valid: ngModel.valid, touched: ngModel.touched, value: ngModel.value }); } }); }); } catch (error) { console.error('Error:', error); } })();"
+    },
+    {
+      "name": "Verificar ngModel sin name",
+      "icon": "warning",
+      "tag": "angular",
+      "description": "Encuentra todos los ngModel que causan error NG01352.",
+      "code": "(function() { try { const elements = document.querySelectorAll('[ng-reflect-model]'); const problematic = []; elements.forEach(el => { const hasName = el.hasAttribute('name') || el.hasAttribute('ng-reflect-name'); const ngModelOptions = el.getAttribute('ng-reflect-ng-model-options'); const isStandalone = ngModelOptions && ngModelOptions.includes('standalone'); if (!hasName && !isStandalone) { problematic.push({ element: el.tagName, class: el.className, parent: el.parentElement?.tagName }); console.warn('⚠️ Elemento con ngModel sin name:', el); } }); console.log(`🔍 Elementos con ngModel: ${elements.length}`); console.log(`⚠️ Problemáticos (sin name): ${problematic.length}`); if (problematic.length > 0) { console.table(problematic); console.log('💡 Solución: Agrega name=\"...\" o [ngModelOptions]=\"{standalone: true}\"'); } } catch (error) { console.error('Error:', error); } })();"
+    },
+    {
+      "name": "Limpieza de localStorage",
+      "icon": "delete_sweep",
+      "tag": "storage",
+      "description": "Limpia localStorage, sessionStorage y caché.",
+      "code": "(async function() { try { localStorage.clear(); sessionStorage.clear(); const databases = await indexedDB.databases(); for (const db of databases) { if (db.name) indexedDB.deleteDatabase(db.name); } if ('caches' in window) { const cacheKeys = await caches.keys(); await Promise.all(cacheKeys.map(key => caches.delete(key))); } console.log('✅ Limpieza completada'); } catch (error) { console.error('Error:', error); } })();"
+    },
+    {
+      "name": "Inspector de localStorage",
+      "icon": "storage",
+      "tag": "storage",
+      "description": "Muestra todo el contenido de localStorage con tamaños.",
+      "code": "(function() { try { const items = []; let totalSize = 0; for (let i = 0; i < localStorage.length; i++) { const key = localStorage.key(i); const value = localStorage.getItem(key); const size = new Blob([value]).size; totalSize += size; items.push({ key, value: value.length > 50 ? value.substring(0, 50) + '...' : value, sizeKB: (size / 1024).toFixed(2) }); } console.table(items); console.log(`📦 Total: ${items.length} items, ${(totalSize / 1024).toFixed(2)} KB`); } catch (error) { console.error('Error:', error); } })();"
+    },
+    {
+      "name": "Monitor de peticiones HTTP",
+      "icon": "api",
+      "tag": "network",
+      "description": "Intercepta y muestra todas las peticiones HTTP.",
+      "code": "(function() { try { const originalFetch = window.fetch; window.fetch = async function(...args) { const start = performance.now(); const url = args[0]; const method = args[1]?.method || 'GET'; console.log(`🌐 [${method}] ${url}`); try { const response = await originalFetch.apply(this, args); const duration = (performance.now() - start).toFixed(2); console.log(`✅ [${method}] ${url} - ${response.status} (${duration}ms)`); return response; } catch (error) { const duration = (performance.now() - start).toFixed(2); console.error(`❌ [${method}] ${url} - error (${duration}ms)`); throw error; } }; console.log('✅ Monitor HTTP activado'); } catch (error) { console.error('Error:', error); } })();"
+    },
+    {
+      "name": "Métricas de rendimiento",
+      "icon": "speed",
+      "tag": "perf",
+      "description": "Muestra métricas clave de rendimiento.",
+      "code": "(function() { try { const perfData = performance.getEntriesByType('navigation')[0]; const paintEntries = performance.getEntriesByType('paint'); const resources = performance.getEntriesByType('resource'); const fcp = paintEntries.find(e => e.name === 'first-contentful-paint')?.startTime; const ttfb = perfData?.responseStart - perfData?.requestStart; const loadTime = perfData?.loadEventEnd - perfData?.fetchStart; const totalResources = resources.length; const totalSize = resources.reduce((sum, r) => sum + (r.transferSize || 0), 0); console.log('📊 Métricas:'); console.log(`   TTFB: ${ttfb?.toFixed(2) || 'N/A'} ms`); console.log(`   FCP: ${fcp?.toFixed(2) || 'N/A'} ms`); console.log(`   Load: ${loadTime?.toFixed(2) || 'N/A'} ms`); console.log(`   Recursos: ${totalResources}`); console.log(`   Tamaño: ${(totalSize / 1024).toFixed(2)} KB`); } catch (error) { console.error('Error:', error); } })();"
+    },
+    {
+      "name": "Capturador de errores",
+      "icon": "bug_report",
+      "tag": "debug",
+      "description": "Captura y muestra errores en un panel flotante.",
+      "code": "(function() { try { const errors = []; const originalError = console.error; console.error = function(...args) { errors.push({ timestamp: new Date().toLocaleTimeString(), message: args.join(' ') }); originalError.apply(console, args); if (errors.length > 10) errors.shift(); const div = document.getElementById('error-panel') || (() => { const d = document.createElement('div'); d.id = 'error-panel'; d.style.cssText = 'position:fixed;bottom:10px;right:10px;background:#000;color:#f44;padding:8px 12px;border-radius:5px;font-family:monospace;font-size:12px;z-index:99999;cursor:pointer;'; d.onclick = () => console.table(errors); document.body.appendChild(d); return d; })(); div.textContent = `🐛 Errores: ${errors.length}`; }; console.log('✅ Capturador de errores activado'); } catch (error) { console.error('Error:', error); } })();"
+    },
+    {
+      "name": "Listar rutas Angular",
+      "icon": "route",
+      "tag": "angular",
+      "description": "Muestra las rutas activas y configuración del router.",
+      "code": "(function() { try { const ng = window.ng; if (!ng) { console.error('❌ Angular no detectado'); return; } const root = document.querySelector('app-root'); const component = ng.getComponent(root); if (component) { if (component.router) { console.log('📍 URL actual:', component.router.url); console.log('📍 Configuración:', component.router.config); } if (component.route) { console.log('📍 Ruta activa:', component.route.snapshot); } } else { console.log('ℹ️ No se encontró el componente raíz'); } } catch (error) { console.error('Error:', error); } })();"
+    },
+    {
+      "name": "Debug de ngFor",
+      "icon": "list",
+      "tag": "angular",
+      "description": "Encuentra y muestra información de listas ngFor.",
+      "code": "(function() { try { const elements = document.querySelectorAll('[ng-reflect-ng-for-of]'); console.log(`📋 Elementos con ngFor: ${elements.length}`); elements.forEach((el, i) => { const data = el.getAttribute('ng-reflect-ng-for-of'); console.log(`${i + 1}. ${el.tagName}:`, data ? JSON.parse(data) : 'N/A'); }); } catch (error) { console.error('Error:', error); } })();"
+    }
+  ]
+}
