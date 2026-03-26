@@ -1,10 +1,4 @@
-Aquí está el JSON actualizado con íconos de Material Icons para representar cada tecnología:
-
-```json
-{
-  "version": "1.0.0",
-  "totalScripts": 35,
-  "categories": [
+ [
     {
       "id": "browser",
       "name": "Estado y limpieza del navegador",
@@ -348,6 +342,4 @@ Aquí está el JSON actualizado con íconos de Material Icons para representar c
         }
       ]
     }
-  ]
-}
-```
+  ];
